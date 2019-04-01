@@ -1,43 +1,59 @@
+require 'nokogiri'
 require 'open-uri'
 require 'pry'
 
-class Scraper
+class ScraperWiki
 
-  def self.scrape_index_page(index_url)
-    students=[]
-    doc=Nokogiri::HTML(open(index_url))
-    doc.css('div.student-card').each do |student|
-      students<<{
-                name:student.css('h4').text,
-                location:student.css('p').text,
-                profile_url:student.css('a').map {|a|a['href']}.join('')
-              }   
+  def self.scrape_list_drivers
+    drivers=[]
+    doc=Nokogiri::HTML(open('https://en.wikipedia.org/wiki/List_of_Formula_One_drivers'))
+    table = doc.xpath('//*[@id="mw-content-text"]/div/table[3]')
+    table.search('tr').css('span.fn').each do |d|
+     name = d.text
+     first_name = d.text.split(' ').first
+     last_name = d.text.split(' ').last
+     profile_url='https://en.wikipedia.org' + d.css('a').map{|a|a['href']}[0]
+     driver=F1driver.new(name,first_name,last_name,profile_url)
+     drivers<<driver
     end
-    students
+    drivers
   end
 
-  def self.scrape_profile_page(profile_url)
-    doc=Nokogiri::HTML(open(profile_url))
-    
-    student={
-      bio:doc.css('div.bio-content.content-holder div.description-holder').text.strip,
-      profile_quote:doc.css('div.profile-quote').text
-    }
-    doc.css('div.social-icon-container a').each do |a|
-      case a['href'].split('/')[2]
-      when 'github.com'
-        student[:github]=a['href']
-      when 'www.linkedin.com'
-        student[:linkedin]=a['href']
-      when 'www.youtube.com'
-        student[:youtube]=a['href']
-      when 'twitter.com'
-        student[:twitter]=a['href']
-      else
-        student[:blog]=a['href']
-      end 
-    end 
-    student
+  def self.scrape_profiles (drivers)
+    attributes={}
+    drivers.each do |d|
+      doc=Nokogiri::HTML(open(d.profile_url))
+      attributes[:bio]=doc.css('p').text
+      data=doc.search('td').map(&:text)
+      attributes[:nationality]=data[1].strip
+      attributes[:seasons]=format_season(data[2])
+      attributes[:championships]=data[5]
+      attributes[:wins]=data[6]
+      attributes[:poles]=data[9]
+      binding.pry
+      
+      # attributes[:current_team]=data[]
+      # attributes[:teams]=data[]
+      # attributes[:nationality]=data[]
+      # attributes[:seasons]=format_season(data[2])
+    end
+  end
+
+  def self.format_season(raw_seasons)
+    season = raw_seasons.split(',').map{|a|a.strip}
+    season.each do |a| 
+      if a.include?('–')
+        start=a.split('–')[0].to_i
+        ending=a.split('–')[1].to_i
+        i=0
+        while i <=(ending-start)
+          season<<(start+i).to_s
+          i+=1
+        end
+      end
+    end
+    season.delete_if{|a| a.include?('–')}
+    season
   end
 
 end

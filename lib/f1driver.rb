@@ -1,17 +1,23 @@
 class F1driver
 
-  attr_accessor :name, :bio, :profile_url, :status, :poles, :wins, :current_team, :teams
+  attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status, :poles, :wins, :current_team, :teams, :nationality, :seasons
 
   @@all = []
 
-  def initialize(student_hash)
-    student_hash.each do |a,v|
-      # binding.pry
-      self.send("#{a}=",v)
-    end
+  def initialize(name,first_name,last_name,profile_url)
+    @name = name
+    @first_name = first_name
+    @last_name=last_name
+    @profile_url=profile_url
     @@all<<self
   end
 
+  def self.find_by_name(name)
+    # binding.pry
+    @@all.select {|driver|driver.name.include?(name.split.map(&:capitalize).join(' '))}
+  end  
+  
+  
   def self.create_from_collection(students_array)
     # binding.pry
     students_array.each {|std|self.new(std)}
