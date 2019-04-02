@@ -1,5 +1,8 @@
-class F1driver
+ require_relative "./mod_concerns"
 
+class F1Driver
+
+  extend Findable
   attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status, :poles, :wins, :current_team, :teams, :nationality, :seasons
 
   @@all = []
@@ -12,10 +15,7 @@ class F1driver
     @@all<<self
   end
 
-  def self.find_by_name(name)
-    # binding.pry
-    @@all.select {|driver|driver.name.include?(name.split.map(&:capitalize).join(' '))}
-  end  
+  
   
   
   def self.create_from_collection(students_array)

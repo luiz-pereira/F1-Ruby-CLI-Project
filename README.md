@@ -5,12 +5,23 @@ Objectives:
 
 #CLI
 I will do a separate class for the CLI that will contain the dynamics of user interaction
+Steps:
+- Salutation
+- Scrape for drivers list
+- Scrape for teams list (will be used to get stats for drivers)
+- list of drivers or do you know the driver?
+- search for driver
+- scrape driver profile
+- if status is active, search for last results and get team stats to estimate position for next race
+- show card for driver
+
 
 #environment file will contain all requirements
 
 Probable classes:
 
-- F1 driver
+- F1 driver (note: I tried to get all profiles, but it was taking too much time, so I will scrape only the ones that are selected)
+- Team (Not originally required, but I could not find a way to get it from the original wiki)
 - Grand prix
 - ScraperWiki
 - ScraperF1

@@ -5,8 +5,10 @@ class CommandLineInterface
 
   def run
     drivers=[]
-    drivers=ScraperWiki.scrape_list_drivers
-    ScraperWiki.scrape_profiles(drivers)
+    teams = []
+    drivers=ScraperWiki.scrape_list_drivers #get list of all drivers
+    teams=ScraperWiki.scrape_wiki_teams #get list of all constructors
+    
     while true
       # system "clear"    
       puts "Welcome to to F1 Scraper! VRUMM, VRUMMM\n\n\n".colorize(:blue)
@@ -28,9 +30,10 @@ class CommandLineInterface
     when 'exit' 
       exit_application
     else
-      driver = get_driver(selection)
+      driver = get_driver(selection) # this code will search for drivers containing the string
       if driver
-        puts driver.name # parei aqui
+        ScraperWiki.scrape_profiles(driver) #get driver info
+        # here I will show the driver stats
       else
         puts "Invalid driver. Please check"
       end
@@ -38,7 +41,7 @@ class CommandLineInterface
   end
 
   def list_drivers(name)
-    F1driver.find_by_name(name).each.with_index (1) do |driver,i| 
+    F1Driver.find_by_name(name).each.with_index (1) do |driver,i| 
       puts "#{i}. #{driver.name}"
       if i%50==0
         puts "press any key to continue or 'esc' to exit"
@@ -55,21 +58,21 @@ class CommandLineInterface
 
   def get_driver(name)
     # binding.pry
-    while F1driver.find_by_name(name).size>1
-      puts "There are #{F1driver.find_by_name(name).size} drivers with this name. Please input the number of the driver you're looking for (or type 'back'):"
+    while F1Driver.find_by_name(name).size>1
+      puts "There are #{F1Driver.find_by_name(name).size} drivers with this name. Please input the number of the driver you're looking for (or type 'back'):"
       list_drivers(name)
       choice=gets.chomp
       case choice
       when 'back'
         false
         break
-      when choice.to_i > F1driver.find_by_name(name).size || choice.to_i <=0
+      when choice.to_i > F1Driver.find_by_name(name).size || choice.to_i <=0
         puts "Invalid selection."
       else
-        name = F1driver.find_by_name(name)[choice.to_i-1].name
+        name = F1Driver.find_by_name(name)[choice.to_i-1].name
       end
       # binding.pry
-      driver=F1driver.find_by_name(name)[0]
+      driver=F1Driver.find_by_name(name)[0]
     end
     driver
   end
