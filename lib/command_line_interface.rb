@@ -6,8 +6,8 @@ class CommandLineInterface
   def run
     drivers=[]
     teams = []
-    drivers=ScraperWiki.scrape_list_drivers #get list of all drivers
-    teams=ScraperWiki.scrape_wiki_teams #get list of all constructors
+    drivers=ScraperWikiDriver.scrape_list_drivers #get list of all drivers
+    teams=ScraperWikiTeam.scrape_wiki_teams #get list of all constructors
     
     while true
       # system "clear"    
@@ -32,7 +32,8 @@ class CommandLineInterface
     else
       driver = get_driver(selection) # this code will search for drivers containing the string
       if driver
-        ScraperWiki.scrape_profiles(driver) #get driver info
+        ScraperWikiDriver.scrape_profiles(driver) #get driver info
+        binding.pry
         # here I will show the driver stats
       else
         puts "Invalid driver. Please check"
@@ -78,33 +79,3 @@ class CommandLineInterface
   end
 
 end
-
-
-
-#   def make_students
-#     students_array = Scraper.scrape_index_page(BASE_PATH + 'index.html')
-#     Student.create_from_collection(students_array)
-#   end
-
-#   def add_attributes_to_students
-#     Student.all.each do |student|
-#       attributes = Scraper.scrape_profile_page(BASE_PATH + student.profile_url)
-#       student.add_student_attributes(attributes)
-#     end
-#   end
-
-#   def display_students
-#     Student.all.each do |student|
-#       puts "#{student.name.upcase}".colorize(:blue)
-#       puts "  location:".colorize(:light_blue) + " #{student.location}"
-#       puts "  profile quote:".colorize(:light_blue) + " #{student.profile_quote}"
-#       puts "  bio:".colorize(:light_blue) + " #{student.bio}"
-#       puts "  twitter:".colorize(:light_blue) + " #{student.twitter}"
-#       puts "  linkedin:".colorize(:light_blue) + " #{student.linkedin}"
-#       puts "  github:".colorize(:light_blue) + " #{student.github}"
-#       puts "  blog:".colorize(:light_blue) + " #{student.blog}"
-#       puts "----------------------".colorize(:green)
-#     end
-#   end
-
-# end

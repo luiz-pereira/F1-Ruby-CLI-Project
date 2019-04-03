@@ -9,6 +9,8 @@ Steps:
 - Salutation
 - Scrape for drivers list
 - Scrape for teams list (will be used to get stats for drivers)
+- Scrape team profile #struggling to get the drivers << Managed to get the drivers>>
+- *********Now I am scraping the drivers profiles using search tr.
 - list of drivers or do you know the driver?
 - search for driver
 - scrape driver profile

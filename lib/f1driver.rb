@@ -3,6 +3,7 @@
 class F1Driver
 
   extend Findable
+  include Setable
   attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status, :poles, :wins, :current_team, :teams, :nationality, :seasons
 
   @@all = []
@@ -15,9 +16,6 @@ class F1Driver
     @@all<<self
   end
 
-  
-  
-  
   def self.create_from_collection(students_array)
     # binding.pry
     students_array.each {|std|self.new(std)}

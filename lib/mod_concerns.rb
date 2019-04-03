@@ -6,3 +6,11 @@ module Findable
     end  
 
 end
+
+module Setable
+
+    def include_attributes(attributes)
+        attributes.each {|att,v|self.send("#{att}=",v)}
+    end
+
+end
