@@ -4,15 +4,14 @@ class F1Driver
 
   extend Findable
   include Setable
-  attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status, :poles, :wins, :current_team, :teams, :nationality, :seasons
+  attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status,:races, :poles, :wins, :current_team, :teams, :nationality, :seasons,:podiums,:championships
 
   @@all = []
 
-  def initialize(name,first_name,last_name,profile_url)
+  def initialize(name,first_name,last_name)
     @name = name
     @first_name = first_name
     @last_name=last_name
-    @profile_url=profile_url
     @@all<<self
   end
 

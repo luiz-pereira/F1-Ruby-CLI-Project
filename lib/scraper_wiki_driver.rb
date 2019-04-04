@@ -1,36 +1,45 @@
 class ScraperWikiDriver
 
   def self.scrape_list_drivers
+    attributes={}
     drivers=[]
     doc=Nokogiri::HTML(open('https://en.wikipedia.org/wiki/List_of_Formula_One_drivers'))
     table = doc.xpath('//*[@id="mw-content-text"]/div/table[3]')
-    table.search('tr').css('span.fn').each do |d|
-     name = d.text
-     first_name = d.text.split(' ').first
-     last_name = d.text.split(' ').last
-     profile_url='https://en.wikipedia.org' + d.css('a').map{|a|a['href']}[0]
-     driver=F1Driver.new(name,first_name,last_name,profile_url)
-     drivers<<driver
+    table.search('tr').map do |a|
+      unless a.text.include?('Points[Note]')
+        name = a.css('td[1]').text.chomp.gsub(/\d+|[\*\[\^]/,"")
+        first_name = name.split(' ').first
+        last_name = name.split(' ').last
+        driver=F1Driver.new(name,first_name,last_name)
+        drivers<<driver
+        
+        attributes[:nationality]=a.css('td[2]').text.chomp.gsub(/[[:space:]]/,'')
+        attributes[:seasons]=format_season(a.css('td[3]').text.chomp.split(','))
+        attributes[:championships]=a.css('td[4]').text.chomp[0]
+        attributes[:races]=a.css('td[5]').text.chomp
+        attributes[:wins]=a.css('td[8]').text.chomp
+        attributes[:poles]=a.css('td[7]').text.chomp
+        attributes[:podiums]=a.css('td[9]').text.chomp
+        attributes[:profile_url]='https://en.wikipedia.org' + a.css('td[1] span.fn a').map{|a|a['href']}[0] unless a.css('td[1] span.fn a').map{|a|a['href']}[0]==nil
+        driver.include_attributes(attributes)
+      end
     end
     drivers
   end
 
   def self.scrape_profiles (driver)
     attributes={}
+    teams=[]
     doc=Nokogiri::HTML(open(driver.profile_url))
     attributes[:bio]=doc.css('p').text
-    attributes[:nationality]=doc.search('tr').detect{|a|a.text.include?('Nationality')}.text.gsub("Nationality ","")
-    attributes[:seasons]=format_season(doc.search('tr').detect{|a|a.text.include?('Active')}.text.gsub(/Active|years/,"").split(', ').map(&:strip))
-    # attributes[:championships]=data[5]
-    # attributes[:wins]=data[6]
-    # attributes[:poles]=data[9]
-  
-    teams=doc.search('tr').detect{|a|a.text.include?('Teams')}.text.split(',').map(&:strip).map{|a|a.gsub(/Teams|\d+|\[|\]/,"")}.reject(&:empty?) if !!doc.search('tr').detect{|a|a.text.include?('Teams')}
+    teams=doc.search('tr').detect{|a|a.text.include?('Teams')}.css('a').map{|a|a['title']} unless doc.search('tr').detect{|a|a.text.include?('Teams')}==[] 
+    attributes[:teams]=teams.map{|team|F1Team.find_by_name(team)}.reject(&:empty?).flatten
+    attributes[:current_team]=doc.search('tr').detect{|a|a.text.include?('2019 Team')}.text.gsub("2019 Team","")  unless detect{|a|a.text.include?('2019 Team')}==nil
     driver.include_attributes(attributes)
   end
 
   def self.format_season(raw_season)
-    raw_season[0] = raw_season[0][1..raw_season[0].size-1]
+    # raw_season[0] = raw_season[0][1..raw_season[0].size-1]
     season=[]
     raw_season.each do |a|
       

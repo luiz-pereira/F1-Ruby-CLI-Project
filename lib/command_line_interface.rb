@@ -31,7 +31,8 @@ class CommandLineInterface
       exit_application
     else
       driver = get_driver(selection) # this code will search for drivers containing the string
-      if driver
+      binding.pry
+      if !!driver
         ScraperWikiDriver.scrape_profiles(driver) #get driver info
         binding.pry
         # here I will show the driver stats
@@ -73,9 +74,8 @@ class CommandLineInterface
         name = F1Driver.find_by_name(name)[choice.to_i-1].name
       end
       # binding.pry
-      driver=F1Driver.find_by_name(name)[0]
     end
-    driver
+    driver=F1Driver.find_by_name(name)[0]
   end
 
 end
