@@ -45,8 +45,8 @@ class ScraperWikiTeam
     attributes={}
     drivers=[]
     doc=Nokogiri::HTML(open(url))
-    drivers=doc.search('tr').detect{|a|a.text.include?('Race drivers')}.text.split('.').drop(1).map(&:strip).map{|a|a.gsub(/\d+|\[|\]/,"")}.reject(&:empty?) if !!doc.search('tr').detect{|a|a.text.include?('Race drivers')}
-    attributes[:drivers]=drivers.map{|driver|F1Driver.find_by_name(driver)}.flatten unless drivers==[]
+    # drivers=doc.search('tr').detect{|a|a.text.include?('Race drivers')}.text.split('.').drop(1).map(&:strip).map{|a|a.gsub(/\d+|\[|\]/,"")}.reject(&:empty?) if !!doc.search('tr').detect{|a|a.text.include?('Race drivers')}
+    # attributes[:drivers]=drivers.map{|driver|F1Driver.find_by_name(driver)}.flatten unless drivers==[]
     # attributes[:team_principal]=doc.search('tr').detect{|a|a.text.include?('Team principal')}.text.gsub("Team principal(s)","").gsub(/d+|\[|\]|\d/,"")
     #attributes[:races]=doc.search('tr').detect{|a|a.text.include?('Races entered')}.text.gsub(/\D/,"")
     attributes

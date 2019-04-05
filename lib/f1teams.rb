@@ -19,6 +19,9 @@ class F1Team
     end
   end
 
+  def self.create_team_from_url(url,name)
+    self.new(name,url)
+  end
   
 
   def self.all

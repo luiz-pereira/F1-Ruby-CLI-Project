@@ -31,13 +31,13 @@ class CommandLineInterface
       exit_application
     else
       driver = get_driver(selection) # this code will search for drivers containing the string
-      binding.pry
       if !!driver
         ScraperWikiDriver.scrape_profiles(driver) #get driver info
         binding.pry
         # here I will show the driver stats
       else
-        puts "Invalid driver. Please check"
+        puts "\n\nInvalid driver. Please check.\n Press any key to go back"
+        STDIN.getch
       end
     end
   end

@@ -4,6 +4,10 @@ module Findable
         self.all.select {|a|a.name.include?(name.split.map(&:capitalize).join(' '))}
     end  
 
+    def find_by_url(profile_url)
+        self.all.detect {|a|a.profile_url==profile_url}
+    end
+
 end
 
 module Setable

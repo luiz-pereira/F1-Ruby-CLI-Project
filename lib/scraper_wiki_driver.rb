@@ -7,7 +7,7 @@ class ScraperWikiDriver
     table = doc.xpath('//*[@id="mw-content-text"]/div/table[3]')
     table.search('tr').map do |a|
       unless a.text.include?('Points[Note]')
-        name = a.css('td[1]').text.chomp.gsub(/\d+|[\*\[\^]/,"")
+        name = a.css('td[1]').text.chomp.gsub(/\d+|[\*\[\^\~]/,"")
         first_name = name.split(' ').first
         last_name = name.split(' ').last
         driver=F1Driver.new(name,first_name,last_name)
@@ -15,6 +15,7 @@ class ScraperWikiDriver
         
         attributes[:nationality]=a.css('td[2]').text.chomp.gsub(/[[:space:]]/,'')
         attributes[:seasons]=format_season(a.css('td[3]').text.chomp.split(','))
+        attributes[:seasons].last==Date.today.year.to_s ? attributes[:status]="Active" : attributes[:status]="Retired"
         attributes[:championships]=a.css('td[4]').text.chomp[0]
         attributes[:races]=a.css('td[5]').text.chomp
         attributes[:wins]=a.css('td[8]').text.chomp
@@ -31,11 +32,35 @@ class ScraperWikiDriver
     attributes={}
     teams=[]
     doc=Nokogiri::HTML(open(driver.profile_url))
-    attributes[:bio]=doc.css('p').text
-    teams=doc.search('tr').detect{|a|a.text.include?('Teams')}.css('a').map{|a|a['title']} unless doc.search('tr').detect{|a|a.text.include?('Teams')}==[] 
-    attributes[:teams]=teams.map{|team|F1Team.find_by_name(team)}.reject(&:empty?).flatten
-    attributes[:current_team]=doc.search('tr').detect{|a|a.text.include?('2019 Team')}.text.gsub("2019 Team","")  unless detect{|a|a.text.include?('2019 Team')}==nil
+    
+    # test way of finding table
+    if !!doc.search('h2').detect {|a|a.text.include?('Formula One') && a.text.include?('results')}
+      selector='h2'
+    elsif !!doc.search('h3').detect {|a|a.text.include?('Formula One') && a.text.include?('results')}
+      selector='h3'
+    end
+
+    doc.search("#{selector}").each do |a|
+      if a.text.include?('Formula One') && a.text.include?('results')
+        table = a.css('+p+table')
+        teams=[]
+        table.css('tr').each do |line|
+          unless line.css('th[3]').text=="Chassis\n"
+            line.css('th[2] a').map do |r|
+              F1Team.create_team_from_url('https://en.wikipedia.org' + r['href'],line.css('th[2] a').text) unless F1Team.find_by_url('https://en.wikipedia.org' + r['href'])
+              teams<<F1Team.find_by_url('https://en.wikipedia.org' + r['href'])
+            end
+          end
+        end
+      end
+    end
+    
+    attributes[:teams]=teams.uniq
+    attributes[:bio]=doc.css('p').map(&:text)[1]
+    attributes[:current_team]=teams.last if driver.status=='Active'
+    
     driver.include_attributes(attributes)
+    binding.pry
   end
 
   def self.format_season(raw_season)
