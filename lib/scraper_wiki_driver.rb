@@ -56,11 +56,10 @@ class ScraperWikiDriver
     end
     
     attributes[:teams]=teams.uniq
-    attributes[:bio]=doc.css('p').map(&:text)[1]
+    attributes[:bio]=doc.css('p').map(&:text)[1].gsub(/\[\d+\]/,"")
     attributes[:current_team]=teams.last if driver.status=='Active'
     
     driver.include_attributes(attributes)
-    binding.pry
   end
 
   def self.format_season(raw_season)

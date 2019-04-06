@@ -10,7 +10,7 @@ class CommandLineInterface
     teams=ScraperWikiTeam.scrape_wiki_teams #get list of all constructors
     
     while true
-      # system "clear"    
+      system "clear"    
       puts "Welcome to to F1 Scraper! VRUMM, VRUMMM\n\n\n".colorize(:blue)
       list_options
       control_options(gets.chomp)
@@ -33,8 +33,7 @@ class CommandLineInterface
       driver = get_driver(selection) # this code will search for drivers containing the string
       if !!driver
         ScraperWikiDriver.scrape_profiles(driver) #get driver info
-        binding.pry
-        # here I will show the driver stats
+        show_driver_stats(driver)
       else
         puts "\n\nInvalid driver. Please check.\n Press any key to go back"
         STDIN.getch
@@ -76,6 +75,80 @@ class CommandLineInterface
       # binding.pry
     end
     driver=F1Driver.find_by_name(name)[0]
+  end
+
+  def show_driver_stats (driver)
+    system "clear"
+    puts draw_border("*")
+    puts draw_box_name(driver.name)
+    if driver.status=="Active"
+      puts draw_line_one_stat(driver.current_team.name)
+    else
+      puts draw_line_one_stat("Retired since #{driver.seasons.last}")
+    end
+    puts draw_empty_line("/")
+    puts draw_line_two_stat("Races",driver.races,"Podiums", driver.podiums)
+    puts draw_line_one_stat("Wins: #{driver.wins}") if driver.wins.to_i>0
+    puts (draw_empty_line("/") + draw_line_one_stat("Championships: #{driver.championships}")) if driver.championships.to_i>0
+    puts draw_empty_line("/")
+    puts draw_line_one_stat("Seasons: #{unformat_seasons(driver.seasons).join(", ")}")
+    puts draw_border("*")
+    puts condense_text(driver.bio,50)
+
+    # driver[:teams]
+    # driver[:nationality]
+    STDIN.getch
+
+  end
+
+  def draw_border (symbol)
+    str=symbol*50 + "\n"
+  end  
+
+  def draw_empty_line (symbol)
+    str=symbol + " "* 48 + symbol + "\n"
+  end
+
+  def draw_box_name(name)
+    str="/" + (" " * ((24-(name.size/2).to_i-1))) + ("."* (name.size+2)) + " " * ((24-(name.size/2).to_i-(1+name.size%2))) + "/\n" + "/" + (" " * ((24-(name.size/2).to_i-1))) + "|" + name + "|" + " " * ((24-(name.size/2).to_i-(1+name.size%2))) + "/\n" + "/" + (" " * ((24-(name.size/2).to_i-1))) + ("^"* (name.size+2)) + " " * (24-(name.size/2).to_i-(1+name.size%2)) + "/"
+  end
+
+  def draw_line_one_stat(stat)
+    str="/" + (" " * ((24-(stat.size/2).to_i))) + stat + " " * ((24-(stat.size/2).to_i-(stat.size%2))) + "/"
+  end
+
+  def draw_line_two_stat(label1, stat1, label2, stat2)
+    stat=""
+    stat = label1 + ": " + stat1 + " " * 6 + label2 + ": " + stat2
+    str=draw_line_one_stat(stat)
+  end
+
+  def condense_text(text,space)
+    cond_text=""
+    for i in 0..(text.size-1) do
+      cond_text+=text[i]
+      if i%49==0 && i!=0
+        cond_text+="\n" 
+      end
+    end
+    cond_text
+  end
+
+  def unformat_seasons(seasons)
+    cond_seasons=[]
+    beg_year=seasons.first
+    i=0
+    while i<seasons.size-1
+      beg_year=seasons[i]
+      cur_year=beg_year
+      while cur_year.to_i+1==seasons[i+1].to_i
+        i+=1
+        cur_year=seasons[i]
+      end
+      cur_year==beg_year ? cond_seasons<<beg_year : cond_seasons<< (beg_year + "-" + cur_year)
+      i+=1
+    end
+    cond_seasons
   end
 
 end
