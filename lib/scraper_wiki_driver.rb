@@ -22,6 +22,7 @@ class ScraperWikiDriver
         attributes[:poles]=a.css('td[7]').text.chomp
         attributes[:podiums]=a.css('td[9]').text.chomp
         attributes[:profile_url]='https://en.wikipedia.org' + a.css('td[1] span.fn a').map{|a|a['href']}[0] unless a.css('td[1] span.fn a').map{|a|a['href']}[0]==nil
+        attributes[:last_results]=[]
         driver.include_attributes(attributes)
       end
     end
@@ -61,6 +62,41 @@ class ScraperWikiDriver
     
     driver.include_attributes(attributes)
   end
+
+  def self.scrape_results_drivers
+    # 2018
+    doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2018_Formula_One_World_Championship"))
+    table=doc.css('h3').detect{|a|a.text=="World Drivers' Championship standings[edit]"}.css('+table')
+    table.css('tr').each do |d|
+      unless d.css('th[2]').text.include?('Driver')
+        name=d.search('td[2]').text.strip
+        driver=F1Driver.find_by_name(name)[0]
+        break if (name=="" || driver==nil)
+        for i in 16..23 do
+          driver.last_results<<d.search("td[#{i}]").text.strip.to_i
+        end
+      end
+    end
+
+    # 2019
+    doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2019_Formula_One_World_Championship"))
+    table=doc.css('h3').detect{|a|a.text=="World Drivers' Championship standings[edit]"}.css('+table')
+    table.css('tr').each do |d|
+      unless d.css('th[2]').text.include?('Driver')
+        name=d.search('td[2]').text.strip
+        driver=F1Driver.find_by_name(name)[0]
+        break if (name=="" || driver==nil)
+
+        while driver.last_results.size<8 #to add 0 to the results for 2018, in case the driver wasn't there
+          driver.last_results.unshift(0)
+        end
+        for i in 3..4 do
+          driver.last_results<<d.search("td[#{i}]").text.strip.to_i
+        end
+      end
+    end
+  end
+
 
   def self.format_season(raw_season)
     # raw_season[0] = raw_season[0][1..raw_season[0].size-1]

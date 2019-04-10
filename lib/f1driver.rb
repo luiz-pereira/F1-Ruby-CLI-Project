@@ -4,7 +4,7 @@ class F1Driver
 
   extend Findable
   include Setable
-  attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status,:races, :poles, :wins, :current_team, :teams, :nationality, :seasons,:podiums,:championships
+  attr_accessor :name,:first_name,:last_name, :bio, :profile_url, :status,:races, :poles, :wins, :current_team, :teams, :nationality, :seasons,:podiums,:championships,:last_results
 
   @@all = []
 

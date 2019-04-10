@@ -3,7 +3,7 @@ require_relative "./mod_concerns"
 class F1Team
   extend Findable
   include Setable
-  attr_accessor :name,:bio, :profile_url, :status, :poles, :wins, :engine, :nationality, :seasons, :races,:team_principal, :drivers
+  attr_accessor :name,:bio, :profile_url, :status, :poles, :wins, :engine, :nationality, :seasons, :races,:team_principal, :drivers, :last_results
 
   @@all = []
 

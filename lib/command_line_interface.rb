@@ -8,7 +8,9 @@ class CommandLineInterface
     teams = []
     drivers=ScraperWikiDriver.scrape_list_drivers #get list of all drivers
     teams=ScraperWikiTeam.scrape_wiki_teams #get list of all constructors
-    
+    ScraperWikiDriver.scrape_results_drivers
+    ScraperWikiTeam.scrape_results_teams
+
     while true
       system "clear"    
       puts "Welcome to to F1 Scraper! VRUMM, VRUMMM\n\n\n".colorize(:blue)
@@ -34,6 +36,7 @@ class CommandLineInterface
       if !!driver
         ScraperWikiDriver.scrape_profiles(driver) #get driver info
         show_driver_stats(driver)
+        binding.pry
       else
         puts "\n\nInvalid driver. Please check.\n Press any key to go back"
         STDIN.getch
@@ -92,11 +95,13 @@ class CommandLineInterface
     puts (draw_empty_line("/") + draw_line_one_stat("Championships: #{driver.championships}")) if driver.championships.to_i>0
     puts draw_empty_line("/")
     puts draw_line_one_stat("Seasons: #{unformat_seasons(driver.seasons).join(", ")}")
+    # binding.pry
     puts draw_border("*")
     puts condense_text(driver.bio,50)
-
-    # driver[:teams]
-    # driver[:nationality]
+    
+    if driver.current_team
+      puts "This driver is still Active. If you want to see his latest results?"
+    end
     STDIN.getch
 
   end

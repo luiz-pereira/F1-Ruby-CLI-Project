@@ -45,14 +45,42 @@ class ScraperWikiTeam
     attributes={}
     drivers=[]
     doc=Nokogiri::HTML(open(url))
-    # drivers=doc.search('tr').detect{|a|a.text.include?('Race drivers')}.text.split('.').drop(1).map(&:strip).map{|a|a.gsub(/\d+|\[|\]/,"")}.reject(&:empty?) if !!doc.search('tr').detect{|a|a.text.include?('Race drivers')}
-    # attributes[:drivers]=drivers.map{|driver|F1Driver.find_by_name(driver)}.flatten unless drivers==[]
-    # attributes[:team_principal]=doc.search('tr').detect{|a|a.text.include?('Team principal')}.text.gsub("Team principal(s)","").gsub(/d+|\[|\]|\d/,"")
-    #attributes[:races]=doc.search('tr').detect{|a|a.text.include?('Races entered')}.text.gsub(/\D/,"")
     attributes
   end
 
-  
+  def self.scrape_results_teams
+    # 2018
+    doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2018_Formula_One_World_Championship"))
+    table=doc.css('h3').detect{|a|a.text=="World Constructors' Championship standings[edit]"}.css('+table')
+    team=nil
+    table.css('tr').each do |t|
+      unless t.text.include?('Constructor')
+        if t.text.split("\n").reject(&:empty?).size ==24
+          team=F1Team.find_by_url("https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1])
+          team.last_results=[]
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[2..22]
+        elsif t.text.split("\n").reject(&:empty?).size ==21
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[0..21]
+        end
+      end
+    end
 
+    # 2019
+    doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2019_Formula_One_World_Championship"))
+    table=doc.css('h3').detect{|a|a.text=="World Constructors' Championship standings[edit]"}.css('+table')
+    team=nil
+    table.css('tr').each do |t|
+      unless t.text.include?('Constructor')
+        if t.text.split("\n").reject(&:empty?).size ==5
+          team=F1Team.find_by_url("https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1])
+          team=F1Team.new(t.text.split("\n").reject(&:empty?)[1].strip,"https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1]) if team == nil
+          team.last_results=[] unless team.last_results
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[2..3]
+        elsif t.text.split("\n").reject(&:empty?).size ==2
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[0..1]
+        end
+      end
+    end
+  end
 end
 
