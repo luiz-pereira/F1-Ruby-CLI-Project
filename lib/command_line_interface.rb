@@ -8,8 +8,8 @@ class CommandLineInterface
     teams = []
     drivers=ScraperWikiDriver.scrape_list_drivers #get list of all drivers
     teams=ScraperWikiTeam.scrape_wiki_teams #get list of all constructors
-    ScraperWikiDriver.scrape_results_drivers
     ScraperWikiTeam.scrape_results_teams
+    ScraperWikiDriver.scrape_results_drivers
 
     while true
       system "clear"    
@@ -21,7 +21,7 @@ class CommandLineInterface
 
   def list_options
     puts "#{'1. '.colorize(:light_blue)} type 'drivers' to list all the F1 drivers since its beginning:"
-    puts "\n#{'2. '.colorize(:light_blue)} type a driver's name to list all his information\n"
+    puts "\n#{'2. '.colorize(:light_blue)} type a driver's name to list all his information\n\n"
   end
 
   def control_options (selection)
@@ -36,10 +36,8 @@ class CommandLineInterface
       if !!driver
         ScraperWikiDriver.scrape_profiles(driver) #get driver info
         show_driver_stats(driver)
-        binding.pry
       else
-        puts "\n\nInvalid driver. Please check.\n Press any key to go back"
-        STDIN.getch
+        puts "\n\nInvalid driver. Please check."
       end
     end
   end
@@ -75,7 +73,6 @@ class CommandLineInterface
       else
         name = F1Driver.find_by_name(name)[choice.to_i-1].name
       end
-      # binding.pry
     end
     driver=F1Driver.find_by_name(name)[0]
   end
@@ -100,9 +97,18 @@ class CommandLineInterface
     puts condense_text(driver.bio,50)
     
     if driver.current_team
-      puts "This driver is still Active. If you want to see his latest results?"
+      puts "\n\n\nThis driver is still Active. Do you want to see a prediction for the next race?"
+      ans=gets.chomp
+      if ans=='Yes' || ans=='y' || ans=='yes'
+        drivers =F1Driver.all.select{|a|a.status=="Active"}
+        ScraperWikiDriver.scrape_profiles_mult(drivers)
+        pred=Predictor.new
+        pred.calc_power(drivers,driver)
+      end
+    else
+      STDIN.getch
     end
-    STDIN.getch
+    
 
   end
 

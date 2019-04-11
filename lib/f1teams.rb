@@ -3,13 +3,14 @@ require_relative "./mod_concerns"
 class F1Team
   extend Findable
   include Setable
-  attr_accessor :name,:bio, :profile_url, :status, :poles, :wins, :engine, :nationality, :seasons, :races,:team_principal, :drivers, :last_results
+  attr_accessor :name,:bio, :profile_url, :status, :poles, :wins, :engine, :nationality, :seasons, :races,:team_principal, :drivers, :last_results, :power
 
   @@all = []
 
   def initialize(name, profile_url)
     @name = name
     @profile_url=profile_url
+    @last_results=[]
     @@all<<self
   end
 

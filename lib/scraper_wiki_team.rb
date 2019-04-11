@@ -57,10 +57,13 @@ class ScraperWikiTeam
       unless t.text.include?('Constructor')
         if t.text.split("\n").reject(&:empty?).size ==24
           team=F1Team.find_by_url("https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1])
-          team.last_results=[]
-          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[2..22]
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i).map do |a|
+           a == 0 ? 20 : a
+          end[2..22]
         elsif t.text.split("\n").reject(&:empty?).size ==21
-          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[0..21]
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i).map do |a|
+            a == 0 ? 20 : a
+          end[0..21]
         end
       end
     end
@@ -74,11 +77,29 @@ class ScraperWikiTeam
         if t.text.split("\n").reject(&:empty?).size ==5
           team=F1Team.find_by_url("https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1])
           team=F1Team.new(t.text.split("\n").reject(&:empty?)[1].strip,"https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1]) if team == nil
-          team.last_results=[] unless team.last_results
           team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[2..3]
         elsif t.text.split("\n").reject(&:empty?).size ==2
           team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[0..1]
         end
+        
+      end
+    end
+    format_results
+  end
+
+  def self.format_results
+    teams=F1Team.all.reject{|a|a.last_results.empty?}.uniq
+    teams.each do |team|
+      unless team.last_results.size<3
+        team.last_results[0]<<team.last_results[2]
+        team.last_results[0]=team.last_results[0].flatten
+        team.last_results[1]<<team.last_results[3]
+        team.last_results[1]=team.last_results[1].flatten
+        team.last_results=team.last_results[0..1]
+      end
+      team.last_results=team.last_results.transpose.map(&:sum)
+      while team.last_results.size<20
+        team.last_results.unshift(0)
       end
     end
   end
