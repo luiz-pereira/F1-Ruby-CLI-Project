@@ -1,10 +1,11 @@
 Objectives:
 
-- This application will allow the user to capture information about each F1 grand prix winner, and present information about the winner.
-- Most information will come from wikipedia. If possible, I'll try to get information about the driver in f1.com website and maybe predict his qualification for the upcoming race.
+- This application allows the user to capture information about each F1 driver, and present information about him in a friendly and fast manner.
+- Most information comes from several sites from wikipedia (F1 drivers list, F1 constructors list, profiles, 2018/2019 results).
+- classify active drivers on ranking to try to predict what will be the next race's results.
 
 #CLI
-I will do a separate class for the CLI that will contain the dynamics of user interaction
+I've made separate classes for the CLI that will contain the dynamics of user interaction
 Steps:
 - Salutation
 - Scrape for drivers list
@@ -17,20 +18,28 @@ Steps:
 - show card for driver
 
 
-#environment file will contain all requirements
+#environment file contain all requirements - I've used require_all to avoid going back to the file and inserting a new 'require' every time i create a new file.
 
-Probable classes:
+classes:
 
-- F1 driver (note: I tried to get all profiles, but it was taking too much time, so I will scrape only the ones that are selected)
-- Team (Not originally required, but I could not find a way to get it from the original wiki)
-- Grand prix
-- ScraperWiki
-- ScraperF1
-- Predictor
-- Download info
+- interface - performs the interaction with the user and calls classes and methods
+ -F1 driver - each driver is an instance of this class, that contains many attributes
+- F1 Team - each team is an instance of this class, that contains many attributes
+- ScraperWikiDriver - used to scrape information about each driver
+- ScraperWikiTeam - used to scrape information about each team
+- Predictor - does all the calculations to rank each active driver and present to the user
 
 Gems:
 
 -nokogiri
 -CLI
+-pry
+-require_all
+-I/O console
+-colorize
+
+installations instructions:
+-fork and close the repository
+-run bundle install
+-ruby ./bin/run to tun the application
 
