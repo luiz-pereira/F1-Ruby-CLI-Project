@@ -43,3 +43,4 @@ installations instructions:
 -run bundle install
 -ruby ./bin/run to tun the application
 
+License: F1-Ruby-CLI/LICENSE
