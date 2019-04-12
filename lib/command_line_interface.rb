@@ -92,6 +92,9 @@ class CommandLineInterface
     puts (draw_empty_line("/") + draw_line_one_stat("Championships: #{driver.championships}")) if driver.championships.to_i>0
     puts draw_empty_line("/")
     puts draw_line_one_stat("Seasons: #{unformat_seasons(driver.seasons).join(", ")}")
+    puts draw_line_one_stat("Teams:")
+    puts draw_empty_line("/")
+    driver.teams.each{|a|puts draw_line_one_stat(a.name)}
     # binding.pry
     puts draw_border("*")
     puts condense_text(driver.bio,50)

@@ -63,8 +63,8 @@ class ScraperWikiDriver
     
     attributes[:teams]=teams.uniq
     attributes[:bio]=doc.css('p').map(&:text)[1].gsub(/\[\d+\]/,"")
+    attributes[:bio]=doc.css('p').map(&:text)[2].gsub(/\[\d+\]/,"") if attributes[:bio].strip=="" 
     attributes[:current_team]=teams.last if driver.status=='Active'
-    
     driver.include_attributes(attributes)
   end
 
