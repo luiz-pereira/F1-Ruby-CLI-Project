@@ -49,7 +49,12 @@ class ScraperWikiTeam
   end
 
   def self.scrape_results_teams
-    # 2018
+    scrape_results_teams_2018
+    scrape_results_teams_2019
+    format_results
+  end
+
+  def self.scrape_results_teams_2018
     doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2018_Formula_One_World_Championship"))
     table=doc.css('h3').detect{|a|a.text=="World Constructors' Championship standings[edit]"}.css('+table')
     team=nil
@@ -67,24 +72,27 @@ class ScraperWikiTeam
         end
       end
     end
+  end
 
-    # 2019
+  def self.scrape_results_teams_2019
     doc=Nokogiri::HTML(open("https://en.wikipedia.org/wiki/2019_Formula_One_World_Championship"))
     table=doc.css('h3').detect{|a|a.text=="World Constructors' Championship standings[edit]"}.css('+table')
     team=nil
     table.css('tr').each do |t|
       unless t.text.include?('Constructor')
-        if t.text.split("\n").reject(&:empty?).size ==5
+        if t.text.split("\n").reject(&:empty?).size ==6
           team=F1Team.find_by_url("https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1])
           team=F1Team.new(t.text.split("\n").reject(&:empty?)[1].strip,"https://en.wikipedia.org" + t.css('a').map{|a|a['href']}[1]) if team == nil
-          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[2..3]
-        elsif t.text.split("\n").reject(&:empty?).size ==2
-          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i)[0..1]
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i).map do |a|
+            a == 0 ? 20 : a
+          end[2..4]
+        elsif t.text.split("\n").reject(&:empty?).size ==3
+          team.last_results<<t.text.split("\n").reject(&:empty?).map(&:to_i).map do |a|
+            a == 0 ? 20 : a
+          end[0..2]
         end
-        
       end
     end
-    format_results
   end
 
   def self.format_results
@@ -99,7 +107,7 @@ class ScraperWikiTeam
       end
       team.last_results=team.last_results.transpose.map(&:sum)
       while team.last_results.size<20
-        team.last_results.unshift(0)
+        team.last_results.unshift(20)
       end
     end
   end
